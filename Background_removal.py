@@ -14,6 +14,7 @@ from torchvision import transforms#, utils
 import numpy as np
 from PIL import Image
 import glob
+import cv2
 
 from data_loader import RescaleT
 from data_loader import CenterCrop
