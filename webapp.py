@@ -24,7 +24,7 @@ from data_loader import SalObjDataset
 # initialize our Flask application and the model
 
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, instance_relative_config=True)
 
 model_dir = './saved_models/basnet_bsi/basnet.pth'
 
@@ -55,9 +55,6 @@ def normPRED(d):
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    # initialize the data dictionary that will be returned from the
-    # view
-    data = {"success": False}
 
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
@@ -67,7 +64,7 @@ def predict():
             image = Image.open(io.BytesIO(image))
 
             # preprocess the image and prepare it for classification
-            img = prepare_image(image, target)
+            img = prepare_image(image)
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
@@ -82,7 +79,6 @@ def predict():
             pred = d1[:,0,:,:]
             pred = normPRED(pred)
             
-            data["predictions"] = []
 
             predict = pred
             predict = predict.squeeze()
@@ -104,18 +100,16 @@ def predict():
             new_img = new_img.astype('uint8')
             new_img = cv2.cvtColor(new_img, cv2.COLOR_BGR2RGB)
 
-            # add them to the list of
-            # returned predictions
-            data["predictions"].append(new_img)
+            byte_io = io.BytesIO()
+            new_img.save(byte_io, 'PNG')
+            byte_io.seek(0)
 
-            # indicate that the request was a success
-            data["success"] = True
+    return flask.send_file(byte_io, mimetype='image/png')
 
-    # return the data dictionary as a JSON response
-    return flask.jsonify(data)
+
 
 if __name__ == "__main__":
     print(("* Loading the model and Flask starting server..."
         "please wait until server has fully started"))
     load_model()
-    app.run()
+    app.run(host='0.0.0.0')
