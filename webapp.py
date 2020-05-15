@@ -68,7 +68,7 @@ def predict():
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
-            img = img.type(torch.FloatTensor)
+            #img = img.type(torch.FloatTensor)
 
             if torch.cuda.is_available():
                 img = Variable(image.cuda())
