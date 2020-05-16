@@ -40,10 +40,15 @@ def load_model():
     net.eval()
 
 def prepare_image(image, target=256):
-    image = SalObjDataset(img_name_list = image, lbl_name_list = [],transform=transforms.Compose([RescaleT(target),ToTensorLab(flag=0)]))
+    image = SalObjDataset(img_name_list = [image], lbl_name_list = [],transform=transforms.Compose([RescaleT(target),ToTensorLab(flag=0)]))
+    image_loader = DataLoader(SalObjDataset, batch_size=1,shuffle=False,num_workers=1)
 
+    for imgs in image_loader:
+        input_image = imgs['image']
+        input_image = input_image.type(torch.FloatTensor)
+        
     # return the processed image
-    return image
+    return input_image
 
 def normPRED(d):
 	ma = torch.max(d)
@@ -59,10 +64,9 @@ def predict():
     # ensure an image was properly uploaded to our endpoint
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
-            # read the image in PIL format
-            image = flask.request.files["image"].read()
-            image = Image.open(io.BytesIO(image))
 
+            image = flask.request.files["image"]
+            #image = Image.open(image)
             # preprocess the image and prepare it for classification
             img = prepare_image(image)
 
@@ -71,7 +75,7 @@ def predict():
             #img = img.type(torch.FloatTensor)
 
             if torch.cuda.is_available():
-                img = Variable(image.cuda())
+                img = Variable(img.cuda())
             else:
                 img = Variable(img)
 
