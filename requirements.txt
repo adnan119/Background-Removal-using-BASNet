@@ -1,0 +1,16 @@
+Flask==1.0.2
+Flask-Cors==3.0.4
+glob2==0.6
+matplotlib==3.0.3
+numpy==1.15.4
+numpydoc==0.8.0
+opencv-python==4.1.1.26
+openpyxl==2.5.3
+pandas==0.24.2
+Pillow==5.4.1
+requests==2.20.0
+scikit-image==0.13.1
+scikit-learn==0.20.3
+scipy==1.1.0
+torch==0.4.1
+torchvision==0.2.1
