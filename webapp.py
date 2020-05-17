@@ -39,16 +39,6 @@ def load_model():
         net.cuda()
     net.eval()
 
-def prepare_image(image, target=256):
-    image = SalObjDataset(img_name_list = [image], lbl_name_list = [],transform=transforms.Compose([RescaleT(target),ToTensorLab(flag=0)]))
-    image_loader = DataLoader(SalObjDataset, batch_size=1,shuffle=False,num_workers=1)
-
-    for imgs in image_loader:
-        input_image = imgs['image']
-        input_image = input_image.type(torch.FloatTensor)
-        
-    # return the processed image
-    return input_image
 
 def normPRED(d):
 	ma = torch.max(d)
