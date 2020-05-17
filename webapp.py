@@ -68,18 +68,23 @@ def predict():
             image = flask.request.files["image"]
             #image = Image.open(image)
             # preprocess the image and prepare it for classification
-            img = prepare_image(image)
+            salobjdataset = SalObjDataset(img_name_list = [image], lbl_name_list = [],transform=transforms.Compose([RescaleT(256),ToTensorLab(flag=0)]))
+            saldataloader = DataLoader(salobjdataset, batch_size=1,shuffle=False,num_workers=1)
+
+            for image in saldataloader:
+                input_image = image['image']
+                input_image = input_image.type(torch.FloatTensor)
 
             # classify the input image and then initialize the list
             # of predictions to return to the client
             #img = img.type(torch.FloatTensor)
 
             if torch.cuda.is_available():
-                img = Variable(img.cuda())
+                input_image = Variable(input_image.cuda())
             else:
-                img = Variable(img)
+                input_image = Variable(input_image)
 
-            d1,d2,d3,d4,d5,d6,d7,d8 = net(img)
+            d1,d2,d3,d4,d5,d6,d7,d8 = net(input_image)
             pred = d1[:,0,:,:]
             pred = normPRED(pred)
             
