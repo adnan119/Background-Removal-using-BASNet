@@ -55,10 +55,10 @@ def predict():
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
 
-            image = flask.request.files["image"]
+            file_image = flask.request.files["image"]
             #image = Image.open(image)
             # preprocess the image and prepare it for classification
-            salobjdataset = SalObjDataset(img_name_list = [image], lbl_name_list = [],transform=transforms.Compose([RescaleT(256),ToTensorLab(flag=0)]))
+            salobjdataset = SalObjDataset(img_name_list = [file_image], lbl_name_list = [],transform=transforms.Compose([RescaleT(256),ToTensorLab(flag=0)]))
             saldataloader = DataLoader(salobjdataset, batch_size=1,shuffle=False,num_workers=1)
 
             for image in saldataloader:
@@ -74,6 +74,9 @@ def predict():
             else:
                 input_image = Variable(input_image)
 
+            
+            load_model()
+            
             d1,d2,d3,d4,d5,d6,d7,d8 = net(input_image)
             pred = d1[:,0,:,:]
             pred = normPRED(pred)
@@ -84,18 +87,18 @@ def predict():
             predict_np = predict.cpu().data.numpy()
 
             im = Image.fromarray(predict_np*255).convert('RGB')
-            image = io.imread(image)
+            image = io.imread(file_image)
             imo = im.resize((image.shape[1],image.shape[0]),resample=Image.BILINEAR)
 
             pb_np = np.array(imo)
 
-            cv_img = cv2.imread(image)
-            cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+            in_img = cv2.imread(file_image)
+            in_img = cv2.cvtColor(in_img, cv2.COLOR_BGR2RGB)
 
             result_img = cv2.imread(imo)
             result_img = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
 
-            new_img = np.where(result_img<[250,250,250],[254,254,254],cv_img)
+            new_img = np.where(result_img<[250,250,250],[254,254,254],in_img)
             new_img = new_img.astype('uint8')
             new_img = cv2.cvtColor(new_img, cv2.COLOR_BGR2RGB)
 
